@@ -1,8 +1,7 @@
-application\Program.class
 service\Totem.class
 service\Empresa.class
 service\Componente.class
-conexoes\Conexao.class
 service\Configuracao.class
+application\Program.class
 conexoes\DbException.class
 service\Medida.class
