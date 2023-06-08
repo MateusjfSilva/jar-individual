@@ -29,7 +29,4 @@ public class Empresa {
     public void setBandaLarga(Double bandaLarga) {
         this.bandaLarga = bandaLarga;
     }
-
-    
-
 }

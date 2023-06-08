@@ -48,20 +48,13 @@ public class Program {
 
         TimerTask task = new TimerTask() {
             public void run() {
-                try {
-                    Medida.inserirMedidasCPU();
-                    Medida.inserirMedidasRAM();
-                    Medida.inserirMedidasDisco();
-                    Medida.inserirMedidasRede();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                Medida.inserirMedidas(Azure.getConn());
+                Medida.inserirMedidas(MySql.getConn());
             }
         };
 
         // Agendar a tarefa para ser executada a cada 5 segundos
         timer.schedule(task, 0, 5000);
-
         sc.close();
     }
 }

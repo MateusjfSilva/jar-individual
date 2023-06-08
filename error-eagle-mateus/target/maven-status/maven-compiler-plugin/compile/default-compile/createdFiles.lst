@@ -1,7 +1,13 @@
+conexoes\MySql.class
+application\Program$1.class
+service\Latencia.class
 service\Totem.class
 service\Empresa.class
 service\Componente.class
+service\Limite.class
 service\Configuracao.class
 application\Program.class
+service\Login.class
+conexoes\Azure.class
 conexoes\DbException.class
 service\Medida.class

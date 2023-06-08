@@ -3,8 +3,7 @@ package service;
 import com.github.britooo.looca.api.core.Looca;
 import com.github.britooo.looca.api.group.discos.DiscoGrupo;
 import com.github.britooo.looca.api.group.discos.Volume;
-import conexoes.Azure;
-import conexoes.MySql;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -22,154 +21,127 @@ public class Medida {
 
     public Medida() {
     }
+    
+    public static void inserirMedidas(Connection conn){
+        try {
+            inserirMedidasCPU(conn);
+            inserirMedidasRAM(conn);
+            inserirMedidasDisco(conn);
+            inserirMedidasRede(conn);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-    public static void inserirMedidasCPU() throws SQLException {
-        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) VALUES (?, ?, ?, ?)";
-        PreparedStatement stAzure = null;
-        PreparedStatement stLocal = null;
+    public static void inserirMedidasCPU(Connection conn) throws SQLException {
+        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) "
+                + "VALUES (?, ?, ?, ?)";
+        PreparedStatement st = null;
 
         try {
-            stAzure = Azure.getConn().prepareStatement(sql);
-            stAzure.setDouble(1, looca.getProcessador().getUso());
-            stAzure.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stAzure.setInt(3, Totem.getId());
-            stAzure.setInt(4, 1);
-            stAzure.executeUpdate();
-            System.out.println("Capturando medidas CPU (Azure)...");
-
-            stLocal = MySql.getConn().prepareStatement(sql);
-            stLocal.setDouble(1, looca.getProcessador().getUso());
-            stLocal.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stLocal.setInt(3, Totem.getId());
-            stLocal.setInt(4, 1);
-            stLocal.executeUpdate();
-            System.out.println("Capturando medidas CPU (Local)...");
+            st = conn.prepareStatement(sql);
+            st.setDouble(1, looca.getProcessador().getUso());
+            st.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
+            st.setInt(3, Totem.getId());
+            st.setInt(4, 1);
+            st.executeUpdate();
+            System.out.println("Capturando medidas CPU...");
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (stAzure != null) {
-                stAzure.close();
-            }
-            if (stLocal != null) {
-                stLocal.close();
+            if (st != null) {
+                st.close();
             }
         }
     }
 
-    public static void inserirMedidasRAM() throws SQLException {
-        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) VALUES (?, ?, ?, ?)";
-        PreparedStatement stAzure = null;
-        PreparedStatement stLocal = null;
-
+    public static void inserirMedidasRAM(Connection conn) throws SQLException {
+        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) "
+                + "VALUES (?, ?, ?, ?)";
+        PreparedStatement st = null;
+        Double usoRAM = looca.getMemoria().getEmUso().doubleValue();
+        Double totalRam = looca.getMemoria().getTotal().doubleValue();
+        Double porcentagemUsoRam = (usoRAM / totalRam) * 100;
+        
         try {
-            stAzure = Azure.getConn().prepareStatement(sql);
-            stAzure.setDouble(1, looca.getMemoria().getEmUso()
-                    / looca.getMemoria().getTotal() * 100);
-            stAzure.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stAzure.setInt(3, Totem.getId());
-            stAzure.setInt(4, 2);
-            stAzure.executeUpdate();
-            System.out.println("Capturando medidas RAM (Azure)...");
-
-            stLocal = MySql.getConn().prepareStatement(sql);
-            stLocal.setDouble(1, looca.getMemoria().getEmUso()
-                    / looca.getMemoria().getTotal() * 100);
-            stLocal.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stLocal.setInt(3, Totem.getId());
-            stLocal.setInt(4, 2);
-            stLocal.executeUpdate();
-            System.out.println("Capturando medidas RAM (Local)...");
+            st = conn.prepareStatement(sql);
+            st.setDouble(1, porcentagemUsoRam);
+            st.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
+            st.setInt(3, Totem.getId());
+            st.setInt(4, 2);
+            st.executeUpdate();
+            System.out.println("Capturando medidas RAM...");
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (stAzure != null) {
-                stAzure.close();
-            }
-            if (stLocal != null) {
-                stLocal.close();
+            if (st != null) {
+                st.close();
             }
         }
     }
 
-    public static void inserirMedidasDisco() throws SQLException {
-        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) VALUES (?, ?, ?, ?)";
-        PreparedStatement stAzure = null;
-        PreparedStatement stLocal = null;
+    public static void inserirMedidasDisco(Connection conn) throws SQLException {
+        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) "
+                + "VALUES (?, ?, ?, ?)";
+        PreparedStatement st = null;
 
         // DISCO
         DiscoGrupo discoGrupo = new DiscoGrupo();
-        Double porcentagemDisponivel = null;
+        Double volumeDisponivel = 0.0;
+        Double volumeTotal = 0.0;
         List<Volume> volumes = discoGrupo.getVolumes();
 
         for (Volume volume : volumes) {
-            if (volume.getNome().equals("/") || volume.getNome().contains("C:")) {
-                porcentagemDisponivel = volume.getDisponivel().doubleValue()
-                        / volume.getTotal().doubleValue() * 100;
-
+            if (volume.getDisponivel().doubleValue() > 0 && volume.getTotal().doubleValue() > 0) {
+                volumeDisponivel += volume.getDisponivel().doubleValue();
+                volumeTotal += volume.getTotal().doubleValue();
             }
         }
 
-        try {
-            stAzure = Azure.getConn().prepareStatement(sql);
-            stAzure.setDouble(1, porcentagemDisponivel);
-            stAzure.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stAzure.setInt(3, Totem.getId());
-            stAzure.setInt(4, 3);
-            stAzure.executeUpdate();
-            System.out.println("Capturando medidas DISCO (Azure)...");
+        volumeDisponivel /= Math.pow(2, 30);
+        volumeTotal /= Math.pow(2, 30);
 
-            stLocal = MySql.getConn().prepareStatement(sql);
-            stLocal.setDouble(1, porcentagemDisponivel);
-            stLocal.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stLocal.setInt(3, Totem.getId());
-            stLocal.setInt(4, 3);
-            stLocal.executeUpdate();
-            System.out.println("Capturando medidas DISCO (Local)...");
+        Double porcentagemDisponivel = (volumeDisponivel / volumeTotal) * 100;
+
+        try {
+            st = conn.prepareStatement(sql);
+            st.setDouble(1, porcentagemDisponivel);
+            st.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
+            st.setInt(3, Totem.getId());
+            st.setInt(4, 3);
+            st.executeUpdate();
+            System.out.println("Capturando medidas DISCO...");
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (stAzure != null) {
-                stAzure.close();
-            }
-            if (stLocal != null) {
-                stLocal.close();
+            if (st != null) {
+                st.close();
             }
         }
     }
 
-    public static void inserirMedidasRede() throws SQLException {
-        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) VALUES (?, ?, ?, ?)";
-        PreparedStatement stAzure = null;
-        PreparedStatement stLocal = null;
+    public static void inserirMedidasRede(Connection conn) throws SQLException {
+        String sql = "INSERT INTO Medida (percentual, dataHora, fkTotem, fkComponente) "
+                + "VALUES (?, ?, ?, ?)";
+        PreparedStatement st = null;
 
         try {
-            stAzure = Azure.getConn().prepareStatement(sql);
-            stAzure.setDouble(1, Latencia.getLatencia());
-            stAzure.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stAzure.setInt(3, Totem.getId());
-            stAzure.setInt(4, 4);
-            stAzure.executeUpdate();
-            System.out.println("Capturando medidas REDE (Azure)...");
-
-            stLocal = MySql.getConn().prepareStatement(sql);
-            stLocal.setDouble(1, Latencia.getLatencia());
-            stLocal.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
-            stLocal.setInt(3, Totem.getId());
-            stLocal.setInt(4, 4);
-            stLocal.executeUpdate();
-            System.out.println("Capturando medidas REDE (Local)...");
+            st = conn.prepareStatement(sql);
+            st.setDouble(1, Latencia.getLatencia());
+            st.setTimestamp(2, java.sql.Timestamp.valueOf(dataHora));
+            st.setInt(3, Totem.getId());
+            st.setInt(4, 4);
+            st.executeUpdate();
+            System.out.println("Capturando medidas REDE...");
 
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            if (stAzure != null) {
-                stAzure.close();
-            }
-            if (stLocal != null) {
-                stLocal.close();
+            if (st != null) {
+                st.close();
             }
         }
     }

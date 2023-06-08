@@ -10,7 +10,7 @@ public class Azure {
     private static String serverName = "svr-erroreagle.database.windows.net";
     private static int portNumber = 1433;
     private static String databaseName = "bd-errorEagle";
-    private static String username = "admin-erroreagle@svr-erroreagle";
+    private static String username = "admin-erroreagle";
     private static String password = "#Gfgrupo3";
     private static String jdbcUrl = String.format(
             "jdbc:sqlserver://%s:%d;database=%s;",
@@ -21,9 +21,12 @@ public class Azure {
     public static Connection openConection() {
         if (conn == null) {
             try {
+                Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 conn = DriverManager.getConnection(jdbcUrl,
                         username, password);
             } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            } catch (ClassNotFoundException e) {
                 throw new DbException(e.getMessage());
             }
         }

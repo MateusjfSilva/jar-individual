@@ -9,15 +9,18 @@ public class MySql {
     // Conexão MySQL
     private static String jdbcUrl = "jdbc:mysql://localhost:3306/erroreagle";
     private static String username = "root";
-    private static String password = "7980";
+    private static String password = "urubu100";
 
     private static Connection conn = null;
 
     public static Connection openConection() {
         if (conn == null) {
             try {
+                Class.forName("com.mysql.cj.jdbc.Driver");
                 conn = DriverManager.getConnection(jdbcUrl, username, password);
             } catch (SQLException e) {
+                throw new DbException(e.getMessage());
+            } catch (ClassNotFoundException e) {
                 throw new DbException(e.getMessage());
             }
         }
