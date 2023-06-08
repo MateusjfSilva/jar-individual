@@ -26,6 +26,7 @@ public class Latencia {
                     int startIndex = line.indexOf("time=") + 5;
                     int endIndex = line.indexOf(" ms", startIndex);
                     String latencyStr = line.substring(startIndex, endIndex);
+                    latencyStr = latencyStr.replace(",", ".");
                     latency = Long.parseLong(latencyStr);
                 }
             }
