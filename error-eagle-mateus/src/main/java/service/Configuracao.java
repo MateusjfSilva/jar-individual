@@ -2,6 +2,7 @@ package service;
 
 import com.github.britooo.looca.api.core.Looca;
 import conexoes.Azure;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,7 +20,7 @@ public class Configuracao {
     private static List<Configuracao> configs;
 
     private static String sql;
-    private static PreparedStatement stAzure = null;
+    private static PreparedStatement st = null;
     private static ResultSet rs = null;
 
     private static Looca looca = new Looca();
@@ -39,8 +40,9 @@ public class Configuracao {
         this.unidadeMedida = unidadeMedida;
     }
 
-    public static void inserirConfiguracao(Double bandaLarga) {
-
+    public static void inserirConfiguracao(String tc, Double bandaLarga, Connection conn) {
+        
+        System.out.println("Validando Configuração " + tc + ":");
         // CPU
         Double frequencia = looca.getProcessador().getFrequencia() / Math.pow(10, 9);
 
@@ -64,8 +66,8 @@ public class Configuracao {
 
         try {
             sql = "SELECT * FROM Configuracao";
-            stAzure = Azure.getConn().prepareStatement(sql);
-            rs = stAzure.executeQuery();
+            st = conn.prepareStatement(sql);
+            rs = st.executeQuery();
 
             configs = new ArrayList<>();
 
@@ -73,22 +75,22 @@ public class Configuracao {
                 if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 1) {
                     configs.add(new Configuracao(rs.getInt("fkTotem"),
                             rs.getInt("fkComponente"), frequencia, "GHz"));
-                    System.out.print("Configuração CPU já cadastrada! ");
+                    System.out.println("CPU já cadastrada!");
                     configCpu = true;
                 } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 2) {
                     configs.add(new Configuracao(rs.getInt("fkTotem"),
                             rs.getInt("fkComponente"), capacidadeRam, "GB"));
-                    System.out.print("Configuração RAM já cadastrada! ");
+                    System.out.println("RAM já cadastrada!");
                     configRam = true;
                 } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 3) {
                     configs.add(new Configuracao(rs.getInt("fkTotem"),
                             rs.getInt("fkComponente"), capacidadeDisco, "GB"));
-                    System.out.print("Configuração DISCO já cadastrada! ");
+                    System.out.println("DISCO já cadastrada!");
                     configDisco = true;
                 } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 4) {
                     configs.add(new Configuracao(rs.getInt("fkTotem"),
                             rs.getInt("fkComponente"), bandaLarga, "MBPS"));
-                    System.out.println("Configuração REDE já cadastrada!");
+                    System.out.println("REDE já cadastrada!\n");
                     configRede = true;
                 }
             }
@@ -96,43 +98,39 @@ public class Configuracao {
             sql = "INSERT INTO Configuracao "
                     + "(fkTotem, fkComponente, capacidade, unidadeMedida) "
                     + "VALUES (?, ?, ?, ?)";
-            stAzure = Azure.getConn().prepareStatement(sql);
+            st = conn.prepareStatement(sql);
 
             if (!configCpu) {
-                stAzure.setInt(1, Totem.getId());
-                stAzure.setInt(2, 1);
-                stAzure.setDouble(3, frequencia);
-                stAzure.setString(4, "GHz");
-                stAzure.executeUpdate();
-                System.out.println("Cadastro Configuração de CPU realizado com "
-                        + "sucesso!");
+                st.setInt(1, Totem.getId());
+                st.setInt(2, 1);
+                st.setDouble(3, frequencia);
+                st.setString(4, "GHz");
+                st.executeUpdate();
+                System.out.println("CPU cadastrada com sucesso!");
             }
             if (!configRam) {
-                stAzure.setInt(1, Totem.getId());
-                stAzure.setInt(2, 2);
-                stAzure.setDouble(3, capacidadeRam);
-                stAzure.setString(4, "GB");
-                stAzure.executeUpdate();
-                System.out.println("Cadastro Configuração de RAM realizado com "
-                        + "sucesso!");
+                st.setInt(1, Totem.getId());
+                st.setInt(2, 2);
+                st.setDouble(3, capacidadeRam);
+                st.setString(4, "GB");
+                st.executeUpdate();
+                System.out.println("RAM cadastrada com sucesso!");
             }
             if (!configDisco) {
-                stAzure.setInt(1, Totem.getId());
-                stAzure.setInt(2, 3);
-                stAzure.setDouble(3, capacidadeDisco);
-                stAzure.setString(4, "GB");
-                stAzure.executeUpdate();
-                System.out.println("Cadastro Configuração de DISCO realizado "
-                        + "com sucesso!");
+                st.setInt(1, Totem.getId());
+                st.setInt(2, 3);
+                st.setDouble(3, capacidadeDisco);
+                st.setString(4, "GB");
+                st.executeUpdate();
+                System.out.println("DISCO cadastrado com sucesso!");
             }
             if (!configRede) {
-                stAzure.setInt(1, Totem.getId());
-                stAzure.setInt(2, 4);
-                stAzure.setDouble(3, bandaLarga);
-                stAzure.setString(4, "MBPS");
-                stAzure.executeUpdate();
-                System.out.println("Cadastro Configuração de REDE realizado com "
-                        + "sucesso!");
+                st.setInt(1, Totem.getId());
+                st.setInt(2, 4);
+                st.setDouble(3, bandaLarga);
+                st.setString(4, "MBPS");
+                st.executeUpdate();
+                System.out.println("REDE cadastrada com sucesso!\n");
             }
 
         } catch (SQLException e) {
@@ -145,9 +143,9 @@ public class Configuracao {
                     e.printStackTrace();
                 }
             }
-            if (stAzure != null) {
+            if (st != null) {
                 try {
-                    stAzure.close();
+                    st.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }

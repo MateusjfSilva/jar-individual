@@ -25,7 +25,7 @@ public class Latencia {
                 if (line.contains("time=")) {
                     int startIndex = line.indexOf("time=") + 5;
                     int endIndex = line.indexOf(" ms", startIndex);
-                    String latencyStr = line.substring(startIndex, endIndex);
+                    String latencyStr = line.substring(startIndex, endIndex).trim();
                     latencyStr = latencyStr.replace(",", ".");
                     latency = Double.parseDouble(latencyStr);
                 }
@@ -40,7 +40,7 @@ public class Latencia {
             e.printStackTrace();
         }
         
-        return null;
+        return 0.0;
     }
 
 }

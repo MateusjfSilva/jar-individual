@@ -22,7 +22,8 @@ public class Medida {
     public Medida() {
     }
     
-    public static void inserirMedidas(Connection conn){
+    public static void inserirMedidas(String tm, Connection conn){
+        System.out.println("Inserindo dados " + tm + ":");
         try {
             inserirMedidasCPU(conn);
             inserirMedidasRAM(conn);
@@ -45,7 +46,7 @@ public class Medida {
             st.setInt(3, Totem.getId());
             st.setInt(4, 1);
             st.executeUpdate();
-            System.out.println("Capturando medidas CPU...");
+            System.out.print("CPU... ");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -71,7 +72,7 @@ public class Medida {
             st.setInt(3, Totem.getId());
             st.setInt(4, 2);
             st.executeUpdate();
-            System.out.println("Capturando medidas RAM...");
+            System.out.print("RAM... ");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -112,7 +113,7 @@ public class Medida {
             st.setInt(3, Totem.getId());
             st.setInt(4, 3);
             st.executeUpdate();
-            System.out.println("Capturando medidas DISCO...");
+            System.out.print("DISCO... ");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -135,7 +136,7 @@ public class Medida {
             st.setInt(3, Totem.getId());
             st.setInt(4, 4);
             st.executeUpdate();
-            System.out.println("Capturando medidas REDE...");
+            System.out.println("REDE...");
 
         } catch (SQLException e) {
             e.printStackTrace();

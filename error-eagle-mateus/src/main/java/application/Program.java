@@ -40,16 +40,20 @@ public class Program {
 
         // cadastrando Totem
         if (Login.realizarCadastro(email, senha)) {
-            Totem.insertTotem(hostName);
-
-            Componente.verificarCompCadastrado(componentes);
-            Configuracao.inserirConfiguracao(Login.getEmp().getBandaLarga());
+            Totem.insertTotem(hostName, Azure.getConn());
+            Totem.insertTotem(hostName, MySql.getConn());
+            Componente.verificarCompCadastrado("Azure", Azure.getConn());
+            Componente.verificarCompCadastrado("Localmente", MySql.getConn());
+            Configuracao.inserirConfiguracao("Azure", Login.getEmp().getBandaLarga(), 
+                    Azure.getConn());
+            Configuracao.inserirConfiguracao("Localmente", Login.getEmp().getBandaLarga(), 
+                    MySql.getConn());
         }
 
         TimerTask task = new TimerTask() {
             public void run() {
-                Medida.inserirMedidas(Azure.getConn());
-                Medida.inserirMedidas(MySql.getConn());
+                Medida.inserirMedidas("Azure", Azure.getConn());
+                Medida.inserirMedidas("Localmente", MySql.getConn());
             }
         };
 

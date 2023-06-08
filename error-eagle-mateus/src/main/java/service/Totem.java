@@ -2,6 +2,7 @@ package service;
 
 import conexoes.Azure;
 import conexoes.MySql;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -13,8 +14,7 @@ public class Totem {
     private static Integer fkEmpresa;
 
     private static String sql;
-    private static PreparedStatement stAzure = null;
-    private static PreparedStatement stLocal = null;
+    private static PreparedStatement st = null;
     private static ResultSet rs = null;
 
     private static Totem totem = null;
@@ -25,14 +25,15 @@ public class Totem {
         this.fkEmpresa = fkEmpresa;
     }
 
-    public static Boolean verificarTotemCadastrado(String hostName, Integer fkEmpresa) {
+    public static Boolean verificarTotemCadastrado(String hostName, Integer fkEmpresa, 
+            Connection conn) {
         Boolean cadastrado = false;
 
         try {
             sql = "SELECT * FROM Totem WHERE hostName = ?";
-            stAzure = Azure.getConn().prepareStatement(sql);
-            stAzure.setString(1, hostName);
-            rs = stAzure.executeQuery();
+            st = conn.prepareStatement(sql);
+            st.setString(1, hostName);
+            rs = st.executeQuery();
 
             if (rs.next()) {
                 System.out.println("Totem já cadastrado!");
@@ -50,9 +51,9 @@ public class Totem {
                     e.printStackTrace();
                 }
             }
-            if (stAzure != null) {
+            if (st != null) {
                 try {
-                    stAzure.close();
+                    st.close();
                 } catch (SQLException e) {
                     e.printStackTrace();
                 }
@@ -61,44 +62,32 @@ public class Totem {
         return cadastrado;
     }
 
-    public static void insertTotem(String hostName) {
+    public static void insertTotem(String hostName, Connection conn) {
 
         try {
-            if (!verificarTotemCadastrado(hostName, Login.getEmp().getId())) {
+            if (!verificarTotemCadastrado(hostName, Login.getEmp().getId(), conn)) {
 
                 System.out.println("Totem não cadastrado! Executando cadastro...");
                 sql = "INSERT INTO Totem (hostName, fkEmpresa) VALUES (?, ?)";
 
-                stAzure = Azure.getConn().prepareStatement(sql);
-                stAzure.setString(1, hostName);
-                stAzure.setInt(2, Login.getEmp().getId());
+                st = conn.prepareStatement(sql);
+                st.setString(1, hostName);
+                st.setInt(2, Login.getEmp().getId());
 
-                stLocal = MySql.getConn().prepareStatement(sql);
-                stLocal.setString(1, hostName);
-                stLocal.setInt(2, Login.getEmp().getId());
+                st.executeUpdate();
 
-                stAzure.executeUpdate();
-                stLocal.executeUpdate();
-
-                if (verificarTotemCadastrado(hostName, Login.getEmp().getId())) {
-                    System.out.println("Cadastro realizado com sucesso!");
+                if (verificarTotemCadastrado(hostName, Login.getEmp().getId(), conn)) {
+                    System.out.println("Totem cadastrado com sucesso!\n");
                 } else {
-                    System.out.println("Houve um erro ao cadastrar o Totem");
+                    System.out.println("Houve um erro ao cadastrar o Totem\n");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             try {
-                if (stAzure != null) {
-                    stAzure.close();
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            try {
-                if (stLocal != null) {
-                    stLocal.close();
+                if (st != null) {
+                    st.close();
                 }
             } catch (SQLException e) {
                 e.printStackTrace();

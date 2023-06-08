@@ -9,7 +9,7 @@ public class MySql {
     // Conexão MySQL
     private static String jdbcUrl = "jdbc:mysql://localhost:3306/erroreagle";
     private static String username = "root";
-    private static String password = "urubu100";
+    private static String password = "7980";
 
     private static Connection conn = null;
 
