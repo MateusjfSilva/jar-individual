@@ -12,6 +12,4 @@ public class Limite {
         this.maximo = maximo;
         this.minimo = minimo;
     }
-    
-    
 }

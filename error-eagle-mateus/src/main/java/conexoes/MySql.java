@@ -18,6 +18,7 @@ public class MySql {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 conn = DriverManager.getConnection(jdbcUrl, username, password);
+                System.out.println("Conexão Local(MySQL) aberta!");
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
             } catch (ClassNotFoundException e) {

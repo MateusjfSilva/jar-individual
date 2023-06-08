@@ -18,15 +18,7 @@ public class Empresa {
         return id;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
     public Double getBandaLarga() {
         return bandaLarga;
-    }
-
-    public void setBandaLarga(Double bandaLarga) {
-        this.bandaLarga = bandaLarga;
     }
 }

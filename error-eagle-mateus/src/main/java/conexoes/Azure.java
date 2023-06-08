@@ -24,6 +24,7 @@ public class Azure {
                 Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
                 conn = DriverManager.getConnection(jdbcUrl,
                         username, password);
+                System.out.println("Conexão com Azure aberta!");
             } catch (SQLException e) {
                 throw new DbException(e.getMessage());
             } catch (ClassNotFoundException e) {

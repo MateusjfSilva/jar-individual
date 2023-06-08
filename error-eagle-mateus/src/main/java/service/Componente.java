@@ -33,24 +33,16 @@ public class Componente {
 
             while (rs.next()) {
                 if (rs.getString("nome").equalsIgnoreCase("CPU")) {
-                    Componente componente = new Componente(rs.getInt("id"),
-                            rs.getString("nome"));
-                    System.out.println("CPU cadastrada!");
+                    System.out.println("CPU já cadastrada!");
                     cpuCadastrada = true;
                 } else if (rs.getString("nome").equalsIgnoreCase("RAM")) {
-                    Componente componente = new Componente(rs.getInt("id"),
-                            rs.getString("nome"));
-                    System.out.println("RAM cadastrada!");
+                    System.out.println("RAM já cadastrada!");
                     ramCadastrada = true;
                 } else if (rs.getString("nome").equalsIgnoreCase("DISCO")) {
-                    Componente componente = new Componente(rs.getInt("id"),
-                            rs.getString("nome"));
-                    System.out.println("DISCO cadastrada!");
+                    System.out.println("DISCO já cadastrada!");
                     discoCadastrado = true;
                 } else if (rs.getString("nome").equalsIgnoreCase("REDE")) {
-                    Componente componente = new Componente(rs.getInt("id"),
-                            rs.getString("nome"));
-                    System.out.println("REDE cadastrada!\n");
+                    System.out.println("REDE já cadastrada!\n");
                     redeCadastrada = true;
                 }
             }

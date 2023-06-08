@@ -40,7 +40,7 @@ public class Configuracao {
         this.unidadeMedida = unidadeMedida;
     }
 
-    public static void inserirConfiguracao(String tc, Double bandaLarga, Connection conn) {
+    public static void inserirConfiguracao(String tc, Double bandaLarga, Connection conn, Integer fkTotem) {
         
         System.out.println("Validando Configuração " + tc + ":");
         // CPU
@@ -72,24 +72,16 @@ public class Configuracao {
             configs = new ArrayList<>();
 
             while (rs.next()) {
-                if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 1) {
-                    configs.add(new Configuracao(rs.getInt("fkTotem"),
-                            rs.getInt("fkComponente"), frequencia, "GHz"));
+                if (rs.getInt("fkTotem") == fkTotem && rs.getInt("fkComponente") == 1) {
                     System.out.println("CPU já cadastrada!");
                     configCpu = true;
-                } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 2) {
-                    configs.add(new Configuracao(rs.getInt("fkTotem"),
-                            rs.getInt("fkComponente"), capacidadeRam, "GB"));
+                } else if (rs.getInt("fkTotem") == fkTotem && rs.getInt("fkComponente") == 2) {
                     System.out.println("RAM já cadastrada!");
                     configRam = true;
-                } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 3) {
-                    configs.add(new Configuracao(rs.getInt("fkTotem"),
-                            rs.getInt("fkComponente"), capacidadeDisco, "GB"));
+                } else if (rs.getInt("fkTotem") == fkTotem && rs.getInt("fkComponente") == 3) {
                     System.out.println("DISCO já cadastrada!");
                     configDisco = true;
-                } else if (rs.getInt("fkTotem") == Totem.getId() && rs.getInt("fkComponente") == 4) {
-                    configs.add(new Configuracao(rs.getInt("fkTotem"),
-                            rs.getInt("fkComponente"), bandaLarga, "MBPS"));
+                } else if (rs.getInt("fkTotem") == fkTotem && rs.getInt("fkComponente") == 4) {
                     System.out.println("REDE já cadastrada!\n");
                     configRede = true;
                 }
@@ -101,7 +93,7 @@ public class Configuracao {
             st = conn.prepareStatement(sql);
 
             if (!configCpu) {
-                st.setInt(1, Totem.getId());
+                st.setInt(1, fkTotem);
                 st.setInt(2, 1);
                 st.setDouble(3, frequencia);
                 st.setString(4, "GHz");
@@ -109,7 +101,7 @@ public class Configuracao {
                 System.out.println("CPU cadastrada com sucesso!");
             }
             if (!configRam) {
-                st.setInt(1, Totem.getId());
+                st.setInt(1, fkTotem);
                 st.setInt(2, 2);
                 st.setDouble(3, capacidadeRam);
                 st.setString(4, "GB");
@@ -117,7 +109,7 @@ public class Configuracao {
                 System.out.println("RAM cadastrada com sucesso!");
             }
             if (!configDisco) {
-                st.setInt(1, Totem.getId());
+                st.setInt(1, fkTotem);
                 st.setInt(2, 3);
                 st.setDouble(3, capacidadeDisco);
                 st.setString(4, "GB");
@@ -125,7 +117,7 @@ public class Configuracao {
                 System.out.println("DISCO cadastrado com sucesso!");
             }
             if (!configRede) {
-                st.setInt(1, Totem.getId());
+                st.setInt(1, fkTotem);
                 st.setInt(2, 4);
                 st.setDouble(3, bandaLarga);
                 st.setString(4, "MBPS");
