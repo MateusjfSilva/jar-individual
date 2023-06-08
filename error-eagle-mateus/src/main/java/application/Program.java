@@ -57,8 +57,8 @@ public class Program {
             }
         };
 
-        // Agendar a tarefa para ser executada a cada 5 segundos
-        timer.schedule(task, 0, 5000);
+        // Agendar a tarefa para ser executada a cada 20 segundos
+        timer.schedule(task, 0, 20000);
         sc.close();
     }
 }
