@@ -6,11 +6,11 @@ import java.io.InputStreamReader;
 
 public class Latencia {
 
-    public static Long getLatencia() {
+    public static Double getLatencia() {
 
         String host = "www.google.com";
         int count = 5; // Número de pacotes ICMP a serem enviados
-        Long latency = null;
+        Double latency = null;
 
         try {
             ProcessBuilder processBuilder = new ProcessBuilder("ping", "-c", 
@@ -27,7 +27,7 @@ public class Latencia {
                     int endIndex = line.indexOf(" ms", startIndex);
                     String latencyStr = line.substring(startIndex, endIndex);
                     latencyStr = latencyStr.replace(",", ".");
-                    latency = Long.parseLong(latencyStr);
+                    latency = Double.parseDouble(latencyStr);
                 }
             }
             
